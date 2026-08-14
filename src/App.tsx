@@ -194,14 +194,16 @@ export default function App() {
     <main className="app">
       <div className="row header-row">
         <h1>Expense Splitter</h1>
-        <button type="button" className="reset-button" onClick={handleReset}>
+        <button type="button" className="btn btn-danger" onClick={handleReset}>
           Reset all data
         </button>
       </div>
       {loadWarning && <p className="warning">{loadWarning}</p>}
 
       <section className="card">
-        <h2>1. People</h2>
+        <h2>
+          <span className="step">1</span> People
+        </h2>
         <form onSubmit={handleAddPerson} className="row">
           <input
             value={personName}
@@ -209,7 +211,9 @@ export default function App() {
             placeholder="Name"
             aria-label="Person name"
           />
-          <button type="submit">Add person</button>
+          <button type="submit" className="btn btn-primary">
+            Add person
+          </button>
         </form>
         {personError && <p className="error">{personError}</p>}
         <ul className="chip-list">
@@ -223,7 +227,9 @@ export default function App() {
       </section>
 
       <section className="card">
-        <h2>2. {editingId ? 'Edit expense' : 'Add an expense'}</h2>
+        <h2>
+          <span className="step">2</span> {editingId ? 'Edit expense' : 'Add an expense'}
+        </h2>
         <form onSubmit={handleSubmitExpense} className="expense-form">
           <label>
             Description
@@ -310,11 +316,11 @@ export default function App() {
           {expenseError && <p className="error">{expenseError}</p>}
 
           <div className="row">
-            <button type="submit" disabled={people.length === 0}>
+            <button type="submit" className="btn btn-primary" disabled={people.length === 0}>
               {editingId ? 'Save changes' : 'Add expense'}
             </button>
             {editingId && (
-              <button type="button" onClick={resetExpenseForm}>
+              <button type="button" className="btn btn-secondary" onClick={resetExpenseForm}>
                 Cancel edit
               </button>
             )}
@@ -323,25 +329,32 @@ export default function App() {
       </section>
 
       <section className="card">
-        <h2>3. Expenses</h2>
+        <h2>
+          <span className="step">3</span> Expenses
+        </h2>
         {expenses.length === 0 && <p className="muted">No expenses logged yet.</p>}
         <ul className="expense-list">
           {expenses.map((exp) => (
             <li key={exp.id} className="expense-item">
               <div>
-                <strong>{exp.description}</strong> — {formatMoney(exp.totalCents)} paid by {personName_(exp.payerId)}
+                <div className="expense-title">
+                  <span>{exp.description}</span>
+                  <span className="split-badge">{exp.split.kind}</span>
+                </div>
                 <div className="muted">
-                  Split ({exp.split.kind}):{' '}
+                  {formatMoney(exp.totalCents)} paid by {personName_(exp.payerId)}
+                </div>
+                <div className="muted">
                   {exp.split.kind === 'equal'
                     ? exp.split.participantIds.map(personName_).join(', ')
                     : exp.split.shares.map((s) => `${personName_(s.personId)} ${formatMoney(s.amountCents)}`).join(', ')}
                 </div>
               </div>
               <div className="row">
-                <button type="button" onClick={() => startEdit(exp)}>
+                <button type="button" className="btn btn-secondary" onClick={() => startEdit(exp)}>
                   Edit
                 </button>
-                <button type="button" onClick={() => handleDelete(exp.id)}>
+                <button type="button" className="btn btn-danger" onClick={() => handleDelete(exp.id)}>
                   Delete
                 </button>
               </div>
@@ -351,20 +364,23 @@ export default function App() {
       </section>
 
       <section className="card">
-        <h2>4. Balances</h2>
+        <h2>
+          <span className="step">4</span> Balances
+        </h2>
         {!balancesResult.ok && <p className="error">{balancesResult.error.message}</p>}
+        {people.length === 0 && <p className="muted">Add people to see balances.</p>}
         <ul className="balance-list">
           {people.map((p) => {
             const value = balances.get(p.id) ?? unsafeCents(0)
             return (
               <li key={p.id}>
-                {p.name}:{' '}
+                <span>{p.name}</span>
                 {value === 0 ? (
-                  <span className="muted">settled up</span>
+                  <span className="pill pill-muted">settled up</span>
                 ) : value > 0 ? (
-                  <span className="positive">is owed {formatMoney(value)}</span>
+                  <span className="pill pill-positive">is owed {formatMoney(value)}</span>
                 ) : (
-                  <span className="negative">owes {formatMoney(unsafeCents(-value))}</span>
+                  <span className="pill pill-negative">owes {formatMoney(unsafeCents(-value))}</span>
                 )}
               </li>
             )
@@ -373,14 +389,19 @@ export default function App() {
       </section>
 
       <section className="card">
-        <h2>5. Settle Up</h2>
+        <h2>
+          <span className="step">5</span> Settle Up
+        </h2>
         {settleResult && !settleResult.ok && <p className="error">{settleResult.error.message}</p>}
         {allSettled && <p className="positive">Everyone is settled up — no payments needed.</p>}
         {transfers.length > 0 && (
-          <ul className="balance-list">
+          <ul className="transfer-list">
             {transfers.map((t, i) => (
               <li key={i}>
-                {personName_(t.fromPersonId)} pays {personName_(t.toPersonId)} {formatMoney(t.amountCents)}
+                <span>
+                  {personName_(t.fromPersonId)} <span className="transfer-arrow">→</span> {personName_(t.toPersonId)}
+                </span>
+                <span className="pill pill-muted">{formatMoney(t.amountCents)}</span>
               </li>
             ))}
           </ul>

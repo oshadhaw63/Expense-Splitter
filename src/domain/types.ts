@@ -113,3 +113,77 @@ export type ExactSplitError =
       readonly direction: 'short' | 'over'
       readonly diffCents: Cents
     }
+
+// ---- People ----
+
+export interface Person {
+  readonly id: PersonId
+  readonly name: string
+}
+
+export type AddPersonError =
+  | { readonly code: 'empty-name'; readonly message: string }
+  | { readonly code: 'duplicate-name'; readonly message: string }
+  | { readonly code: 'duplicate-id'; readonly message: string }
+
+// ---- Expenses ----
+
+export type ExpenseId = string & { readonly __brand: 'ExpenseId' }
+
+export function asExpenseId(raw: string): ExpenseId {
+  return raw as ExpenseId
+}
+
+export interface ExactShareInput {
+  readonly personId: PersonId
+  readonly amountCents: Cents
+}
+
+/** Serializable exact-share representation — a plain array, never a caller-owned Map. */
+export type ExpenseSplitInput =
+  | { readonly kind: 'equal'; readonly participantIds: readonly PersonId[] }
+  | { readonly kind: 'exact'; readonly shares: readonly ExactShareInput[] }
+
+export interface ExpenseInput {
+  readonly description: string
+  readonly payerId: PersonId
+  readonly totalCents: Cents
+  readonly split: ExpenseSplitInput
+}
+
+export interface Expense extends ExpenseInput {
+  readonly id: ExpenseId
+}
+
+export type ExpenseError =
+  | { readonly code: 'unknown-payer'; readonly message: string }
+  | { readonly code: 'unknown-participant'; readonly message: string; readonly personId: PersonId }
+  | { readonly code: 'duplicate-expense-id'; readonly message: string }
+  | { readonly code: 'expense-not-found'; readonly message: string }
+  | { readonly code: 'invalid-equal-split'; readonly message: string; readonly splitError: EqualSplitError }
+  | { readonly code: 'invalid-exact-split'; readonly message: string; readonly splitError: ExactSplitError }
+
+// ---- Balances ----
+
+export type BalanceError =
+  | { readonly code: 'unknown-payer'; readonly message: string; readonly expenseId: ExpenseId }
+  | {
+      readonly code: 'unknown-participant'
+      readonly message: string
+      readonly expenseId: ExpenseId
+      readonly personId: PersonId
+    }
+  | { readonly code: 'invalid-split'; readonly message: string; readonly expenseId: ExpenseId }
+  | { readonly code: 'balance-overflow'; readonly message: string; readonly personId: PersonId }
+
+// ---- Settlement ----
+
+export interface Transfer {
+  readonly fromPersonId: PersonId
+  readonly toPersonId: PersonId
+  readonly amountCents: Cents
+}
+
+export type SettleError =
+  | { readonly code: 'non-zero-sum'; readonly message: string }
+  | { readonly code: 'unsafe-balance'; readonly message: string; readonly personId: PersonId }

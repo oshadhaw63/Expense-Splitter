@@ -10,3 +10,12 @@ reference/
 
 .DS_Store
 Thumbs.db
+
+# Vite build artifacts
+dist-ssr/
+*.local
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea

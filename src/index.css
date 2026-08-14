@@ -15,6 +15,20 @@ body {
   padding: 1rem;
 }
 
+.header-row {
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.reset-button {
+  background: #fff;
+  border: 1px solid #b00020;
+  color: #b00020;
+  border-radius: 4px;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+}
+
 .card {
   background: white;
   border: 1px solid #ddd;

@@ -13,6 +13,10 @@ export function saveState(people: readonly Person[], expenses: readonly Expense[
   localStorage.setItem(KEY, JSON.stringify(payload))
 }
 
+export function clearState(): void {
+  localStorage.removeItem(KEY)
+}
+
 export function loadState(): { people: readonly Person[]; expenses: readonly Expense[]; warning?: string } {
   const raw = localStorage.getItem(KEY)
   if (!raw) return { people: [], expenses: [] }

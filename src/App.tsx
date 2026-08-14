@@ -6,7 +6,7 @@ import { settleExact } from './domain/settle'
 import { formatMoney, parseMoney } from './domain/money'
 import { asExpenseId, asPersonId, unsafeCents } from './domain/types'
 import type { Cents, Expense, ExpenseSplitInput, Person, PersonId } from './domain/types'
-import { loadState, saveState } from './storage'
+import { clearState, loadState, saveState } from './storage'
 
 let nextId = 1
 function freshId(prefix: string): string {
@@ -176,11 +176,28 @@ export default function App() {
     return people.find((p) => p.id === id)?.name ?? id
   }
 
+  function handleReset() {
+    const confirmed = window.confirm('Reset all data? This removes every person and expense and cannot be undone.')
+    if (!confirmed) return
+    clearState()
+    setPeople([])
+    setExpenses([])
+    resetExpenseForm()
+    setPersonName('')
+    setPersonError(undefined)
+    setLoadWarning(undefined)
+  }
+
   const allSettled = transfers.length === 0 && balancesResult.ok
 
   return (
     <main className="app">
-      <h1>Expense Splitter</h1>
+      <div className="row header-row">
+        <h1>Expense Splitter</h1>
+        <button type="button" className="reset-button" onClick={handleReset}>
+          Reset all data
+        </button>
+      </div>
       {loadWarning && <p className="warning">{loadWarning}</p>}
 
       <section className="card">

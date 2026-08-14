@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+
+.env
+.env.*
+!.env.example
+
+reference/
+
+.DS_Store
+Thumbs.db
